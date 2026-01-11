@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IEC Assignment - Digital Electronics</title>
+    <style>
+        :root {
+            /* --- COLOR PALETTE: Cyberpunk Blue --- */
+            --bg-dark: #000205;
+            --glass-bg: rgba(15, 23, 42, 0.7); /* See-through dark blue */
+            --glass-border: rgba(59, 130, 246, 0.3);
+            --neon-blue: #3b82f6;
+            --neon-cyan: #06b6d4;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --led-off: #1e293b;
+            --led-on: #00f0ff; /* Super bright cyan */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            /* Cool subtle grid background */
+            background-image: 
+                linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- HEADER --- */
+        .header-bar {
+            background: rgba(2, 6, 23, 0.9);
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 2px solid var(--neon-blue);
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.4);
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-title {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 4px;
+            color: #fff;
+            text-shadow: 0 0 15px var(--neon-blue);
+            text-transform: uppercase;
+        }
+
+        /* --- MAIN LAYOUT --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        /* GLASSMORPHISM CARD */
+        .dashboard {
+            background: var(--glass-bg);
+            padding: 3rem;
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(15px); /* Blurs the grid behind it */
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+        }
+
+        h2.project-title {
+            color: var(--neon-cyan);
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            font-size: 1.2rem;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 15px;
+            display: inline-block;
+        }
+
+        /* --- INPUT --- */
+        .input-group {
+            margin-bottom: 2.5rem;
+        }
+
+        input[type="number"] {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--neon-blue);
+            color: #fff;
+            padding: 15px 25px;
+            font-size: 1.8rem;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            border-radius: 12px;
+            width: 60%;
+            text-align: center;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input[type="number"]:focus {
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+            border-color: var(--neon-cyan);
+            transform: scale(1.02);
+        }
+
+        /* --- RESULTS GRID --- */
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 3rem;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Little decorative bar on the left of cards */
+        .result-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 4px;
+            background: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .result-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.4rem;
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        /* --- LED VISUALIZATION --- */
+        .led-section {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .led-title {
+            color: var(--neon-cyan);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
+
+        .led-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap; /* Wraps on small screens */
+        }
+
+        .led-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* REALISTIC LED CSS */
+        .led {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #222;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5), inset -2px -2px 5px rgba(255,255,255,0.1);
+            border: 2px solid #444;
+            transition: 0.2s;
+        }
+
+        .led.on {
+            background: var(--neon-cyan);
+            border-color: #fff;
+            box-shadow: 
+                0 0 20px var(--neon-cyan), 
+                0 0 40px var(--neon-cyan),
+                inset 2px 2px 5px rgba(255,255,255,0.5); /* Shiny reflection */
+            transform: scale(1.1);
+        }
+
+        .bit-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        /* --- FOOTER --- */
+        .footer-bar {
+            background: #020617;
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+        
+        .student-name {
+            color: var(--neon-blue);
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header-bar">
+        <h1 class="header-title">IEC Assignment</h1>
+    </header>
+
+    <main class="main-content">
+        <div class="dashboard">
+            <h2 class="project-title">Number System & Logic Simulator</h2>
+
+            <div class="input-group">
+                <input type="number" id="decimalInput" placeholder="Enter (0-255)" oninput="convertNumber()" min="0" max="255">
+            </div>
+
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-label">Binary (Base 2)</div>
+                    <div class="result-value" id="binOutput">-</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Hexadecimal (Base 16)</div>
+                    <div class="result-value" id="hexOutput">-</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Octal (Base 8)</div>
+                    <div class="result-value" id="octOutput">-</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">System Status</div>
+                    <div class="result-value" style="color: var(--neon-blue); font-size: 1rem;" id="statusOutput">Waiting...</div>
+                </div>
+            </div>
+
+            <div class="led-section">
+                <div class="led-title">8-Bit Register Visualization</div>
+                <div class="led-container" id="ledContainer">
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer-bar">
+        <div class="footer-content">
+            <div>Submitted By: <span class="student-name">Anurag Kumar</span></div>
+            <div>CSE Branch | CS1(B) | 2025</div>
+            <div style="margin-top: 10px; color: #fff;">Submitted To: <strong>Swathi Mam</strong></div>
+        </div>
+    </footer>
+
+    <script>
+        // 1. Generate LEDs
+        const ledContainer = document.getElementById('ledContainer');
+        for (let i = 7; i >= 0; i--) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'led-wrapper';
+            wrapper.innerHTML = `
+                <div class="led" id="led-${i}"></div>
+                <div class="bit-label">Bit ${i}</div>
+            `;
+            ledContainer.appendChild(wrapper);
+        }
+
+        // 2. Conversion Logic
+        function convertNumber() {
+            const inputField = document.getElementById('decimalInput');
+            let inputVal = inputField.value;
+
+            if (inputVal === "") {
+                resetDashboard("Waiting...");
+                return;
+            }
+
+            let num = parseInt(inputVal);
+
+            if (isNaN(num) || num < 0 || num > 255) {
+                resetDashboard("Range Error (0-255)");
+                if(num > 255) inputField.value = 255;
+                if(num < 0) inputField.value = 0;
+                return;
+            }
+
+            // Update Text
+            document.getElementById('binOutput').innerText = num.toString(2).padStart(8, '0');
+            document.getElementById('hexOutput').innerText = "0x" + num.toString(16).toUpperCase().padStart(2, '0');
+            document.getElementById('octOutput').innerText = num.toString(8).padStart(3, '0');
+            document.getElementById('statusOutput').innerText = "Active ✓";
+
+            // Update LEDs
+            const binaryString = num.toString(2).padStart(8, '0');
+            for (let i = 0; i < 8; i++) {
+                const bit = binaryString[i];
+                const ledIndex = 7 - i;
+                const ledElement = document.getElementById(`led-${ledIndex}`);
+                if (bit === '1') {
+                    ledElement.classList.add('on');
+                } else {
+                    ledElement.classList.remove('on');
+                }
+            }
+        }
+
+        function resetDashboard(msg) {
+            document.getElementById('binOutput').innerText = "-";
+            document.getElementById('hexOutput').innerText = "-";
+            document.getElementById('octOutput').innerText = "-";
+            document.getElementById('statusOutput').innerText = msg;
+            document.querySelectorAll('.led').forEach(l => l.classList.remove('on'));
+        }
+    </script>
+</body>
+</html>
